@@ -1,21 +1,58 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const mongoose = require("mongoose")
-
 const port = 3000;
 
-const data = require('./budget');
+const mongoose = require("mongoose")
 
-app.use("/", express.static("public"));
+const nameModel = require("./model/schema")
 
-app.get("/hello", (req, res) => {
-  res.send("Hello World!");
+let url = 'mongodb://localhost:27017/pbmongo';
+
+app.use('/', express.static('public'));
+app.use(express.json());
+
+app.get('/budget', (req, res) => {
+    mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(() => {
+            nameModel.find().exec().
+                then(data => {
+                    res.json(data);
+                    mongoose.connection.close();
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 });
 
-app.get("/budget", (req, res) => {
-  res.json(data);
+app.post('/budget', (req, res) => {
+    mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(() => {
+            // console.log(res);
+            console.log(req.body);
+
+            var newData = new nameModel({
+                title: req.body.title,
+                value: req.body.value,
+                color: req.body.color
+            });
+
+            nameModel.insertMany(newData).then(data => {
+                res.send('inserted into the database')
+                mongoose.connection.close();
+            })
+                .catch((error) => {
+                    console.log(error);
+                });
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 });
 
 app.listen(port, () => {
-  console.log(`API served at http://localhost:${port}`);
+    console.log(`API served at http://localhost:${port}`);
 });

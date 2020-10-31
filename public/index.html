@@ -170,23 +170,7 @@
     <script src="https://d3js.org/d3.v4.js"></script>
 
     <script>
-        var colors = [
-            "#0074D9",
-            "#FF4136",
-            "#2ECC40",
-            "#FF851B",
-            "#7FDBFF",
-            "#B10DC9",
-            "#FFDC00",
-            "#39CCCC",
-            "#39CCCC",
-            "#01FF70",
-            "#85144b",
-            "#F012BE",
-            "#3D9970",
-            "#111111",
-            "#AAAAAA",
-        ]
+        var colors = []
 
         var data = {
             datasets: [{
@@ -211,9 +195,10 @@
             axios.get('/budget')
                 .then(function (res) {
                     // console.log(res);
-                    for (var i = 0; i < res.data.myBudget.length; i++) {
-                        data.datasets[0].data[i] = res.data.myBudget[i].budget;
-                        data.labels[i] = res.data.myBudget[i].title;
+                    for (var i = 0; i < res.data.length; i++) {
+                        data.datasets[0].data[i] = res.data[i].value;
+                        colors[i] = res.data[i].color;
+                        data.labels[i] = res.data[i].title;
                     }
                     createChart();
                 });
@@ -243,7 +228,7 @@
         axios.get("/budget").then(function (res) {
 
             var d3Data = {};
-            res.data.myBudget.forEach(i => d3Data[i.title] = i.budget);
+            res.data.forEach(i => d3Data[i.title] = i.value);
             console.log(d3Data);
 
             var color = d3.scaleOrdinal()
